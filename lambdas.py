@@ -141,14 +141,22 @@ class Stocks(Blueprint):
         )
         self.template.add_resource(stocks_pattern_lambda_function)
 
-        pattern_webhook_api_method = apigateway.Method(
-            "PatternWebhookMethod",
+        self.harmonic_pattern_api_resource = apigateway.Resource(
+            "HarmonicPatternResource",
+            ParentId="{{resolve:ssm:/webhook/resource/id}}",
+            RestApiId="{{resolve:ssm:/stocks/api/id}}",
+            PathPart="harmonic-pattern",
+        )
+        self.template.add_resource(self.harmonic_pattern_api_resource)
+
+        harmonic_pattern_api_method = apigateway.Method(
+            "HarmonicPatternMethod",
             DependsOn=stocks_pattern_lambda_function,
             AuthorizationType="NONE",
             ApiKeyRequired=False,
             HttpMethod="POST",
             RestApiId="{{resolve:ssm:/stocks/api/id}}",
-            ResourceId="{{resolve:ssm:/webhook/resource/id}}",
+            ResourceId=Ref(self.harmonic_pattern_api_resource),
             Integration=apigateway.Integration(
                 IntegrationHttpMethod="POST",
                 Type="AWS_PROXY",
@@ -158,11 +166,11 @@ class Stocks(Blueprint):
                 ),
             ),
         )
-        self.template.add_resource(pattern_webhook_api_method)
+        self.template.add_resource(harmonic_pattern_api_method)
 
         self.template.add_resource(
             awslambda.Permission(
-                "SignupInvokePermission",
+                "StocksPatternInvokePermission",
                 DependsOn=stocks_pattern_lambda_function,
                 Action="lambda:InvokeFunction",
                 FunctionName=self.get_variables()["env-dict"][
@@ -170,7 +178,7 @@ class Stocks(Blueprint):
                 ],
                 Principal="apigateway.amazonaws.com",
                 SourceArn=Sub(
-                    "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiId}/*/POST/webhook",
+                    "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiId}/*/POST/webhook/harmonic-pattern",
                     ApiId="{{resolve:ssm:/stocks/api/id}}",
                 ),
             )
