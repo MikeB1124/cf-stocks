@@ -7,7 +7,7 @@ stacks:
     class_path: shared.Stocks
     variables:
       env-dict:
-        BucketName: stock-shared-bucket
+        BucketName: stocks-shared-bucket
 
   - name: api
     class_path: api.Stocks
