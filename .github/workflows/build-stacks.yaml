@@ -33,3 +33,4 @@ jobs:
       - name: Stacker build
         run: |
           stacker build config.yaml --targets shared -t
+          stacker build config.yaml --targets api -t --recreate-failed

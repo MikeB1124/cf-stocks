@@ -9,11 +9,11 @@ stacks:
       env-dict:
         BucketName: stock-shared-bucket
 
-  # - name: api
-  #   class_path: api.Registration
-  #   variables:
-  #       env-dict:
-  #         ApiName: registration-api-gateway
+  - name: api
+    class_path: api.Stocks
+    variables:
+        env-dict:
+          ApiName: stocks-api-gateway
 
   # - name: lambda
   #   class_path: lambda.Registration
