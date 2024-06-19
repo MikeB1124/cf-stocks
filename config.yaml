@@ -1,0 +1,31 @@
+namespace: cf-stocks
+stacker_bucket_region: us-west-2
+sys_path: ./
+
+stacks:
+  - name: shared
+    class_path: shared.Stocks
+    variables:
+      env-dict:
+        BucketName: stock-shared-bucket
+
+  # - name: api
+  #   class_path: api.Registration
+  #   variables:
+  #       env-dict:
+  #         ApiName: registration-api-gateway
+
+  # - name: lambda
+  #   class_path: lambda.Registration
+  #   variables:
+  #       env-dict:
+  #         BucketName: registration-shared-bucket
+  #         RegistrationLambdaName: registration-lambda
+  #         SharedSecretsId: registration/shared/secrets
+
+  # - name: integrations
+  #   class_path: integrations.Registration
+  #   variables:
+  #       env-dict:
+  #         ApiKeyName: RegistrationApiKey
+  #         ApiUsagePlanName: RegistrationApiUsagePlan
