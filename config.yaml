@@ -15,17 +15,17 @@ stacks:
         env-dict:
           ApiName: stocks-api-gateway
 
-  # - name: lambda
-  #   class_path: lambda.Registration
-  #   variables:
-  #       env-dict:
-  #         BucketName: registration-shared-bucket
-  #         RegistrationLambdaName: registration-lambda
-  #         SharedSecretsId: registration/shared/secrets
+  - name: lambdas
+    class_path: lambdas.Stocks
+    variables:
+        env-dict:
+          BucketName: stocks-shared-bucket
+          StocksPatternLambdaName: stocks-pattern-lambda
+          SharedSecretsId: stocks/shared/secrets
 
-  # - name: integrations
-  #   class_path: integrations.Registration
-  #   variables:
-  #       env-dict:
-  #         ApiKeyName: RegistrationApiKey
-  #         ApiUsagePlanName: RegistrationApiUsagePlan
+  - name: integrations
+    class_path: integrations.Stocks
+    variables:
+        env-dict:
+          ApiKeyName: StocksApiKey
+          ApiUsagePlanName: StocksApiUsagePlan
