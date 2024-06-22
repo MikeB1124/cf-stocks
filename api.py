@@ -66,7 +66,7 @@ class Stocks(Blueprint):
             "SyncResourceId",
             Name="/stocks/sync/resource/id",
             Type="String",
-            Value=Ref(self.webhook_api_resource),
+            Value=Ref(self.sync_api_resource),
         )
         self.template.add_resource(ssm_sync_resource_id)
 
