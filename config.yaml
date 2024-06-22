@@ -29,6 +29,7 @@ stacks:
         env-dict:
           BucketName: stocks-shared-bucket
           OrderSyncLambdaName: stocks-order-sync-lambda
+          ProfitCalculatorLambdaName: stocks-profit-calculator-lambda
           SharedSecretsId: stocks/shared/secrets
 
   - name: integrations
