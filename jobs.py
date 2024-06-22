@@ -219,12 +219,8 @@ class Stocks(Blueprint):
                                     "Effect": "Allow",
                                     "Action": ["lambda:InvokeFunction"],
                                     "Resource": [
-                                        Sub(
-                                            "arn:aws:lambda:{AWS::Region}:{AWS::AccountId}:function:stocks-order-sync-lambda:*",
-                                        ),
-                                        Sub(
-                                            "arn:aws:lambda:{AWS::Region}:{AWS::AccountId}:function:stocks-order-sync-lambda",
-                                        )
+                                        "arn:aws:lambda:us-west-2:934985413136:function:stocks-order-sync-lambda:*",
+                                        "arn:aws:lambda:us-west-2:934985413136:function:stocks-order-sync-lambda",
                                     ],
                                 },
                             ],
