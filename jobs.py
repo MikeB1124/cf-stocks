@@ -220,7 +220,7 @@ class Stocks(Blueprint):
                                     "Action": ["lambda:InvokeFunction"],
                                     "Resource": [
                                         Sub(
-                                            "{LambdaArn}",
+                                            "{LambdaArn}:*",
                                             LambdaArn=GetAtt(
                                                 self.stocks_order_sync_lambda_function,
                                                 "Arn",
