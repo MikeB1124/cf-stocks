@@ -117,7 +117,7 @@ class Stocks(Blueprint):
             )
         )
 
-        stocks_order_sync_lambda_function = awslambda.Function(
+        self.stocks_order_sync_lambda_function = awslambda.Function(
             "OrderSyncLambdaFunction",
             FunctionName=self.get_variables()["env-dict"]["OrderSyncLambdaName"],
             Code=awslambda.Code(
@@ -140,7 +140,7 @@ class Stocks(Blueprint):
             Runtime="provided.al2023",
             Role=GetAtt(lambda_role, "Arn"),
         )
-        self.template.add_resource(stocks_order_sync_lambda_function)
+        self.template.add_resource(self.stocks_order_sync_lambda_function)
 
         self.order_sync_api_resource = apigateway.Resource(
             "OrderSyncResource",
@@ -152,7 +152,7 @@ class Stocks(Blueprint):
 
         order_sync_api_method = apigateway.Method(
             "OrderSyncMethod",
-            DependsOn=stocks_order_sync_lambda_function,
+            DependsOn=self.stocks_order_sync_lambda_function,
             AuthorizationType="NONE",
             ApiKeyRequired=True,
             HttpMethod="POST",
@@ -163,7 +163,7 @@ class Stocks(Blueprint):
                 Type="AWS_PROXY",
                 Uri=Sub(
                     "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations",
-                    LambdaArn=GetAtt(stocks_order_sync_lambda_function, "Arn"),
+                    LambdaArn=GetAtt(self.stocks_order_sync_lambda_function, "Arn"),
                 ),
             ),
         )
@@ -172,7 +172,7 @@ class Stocks(Blueprint):
         self.template.add_resource(
             awslambda.Permission(
                 "OrderSyncInvokePermission",
-                DependsOn=stocks_order_sync_lambda_function,
+                DependsOn=self.stocks_order_sync_lambda_function,
                 Action="lambda:InvokeFunction",
                 FunctionName=self.get_variables()["env-dict"][
                     "OrderSyncLambdaName"
@@ -222,14 +222,14 @@ class Stocks(Blueprint):
                                         Sub(
                                             "{LambdaArn}:*",
                                             LambdaArn=GetAtt(
-                                                self.order_sync_api_resource,
+                                                self.stocks_order_sync_lambda_function,
                                                 "Arn",
                                             ),
                                         ),
                                         Sub(
                                             "{LambdaArn}",
                                             LambdaArn=GetAtt(
-                                                self.order_sync_api_resource,
+                                                self.stocks_order_sync_lambda_function,
                                                 "Arn",
                                             ),
                                         )
