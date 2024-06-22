@@ -198,11 +198,6 @@ class Stocks(Blueprint):
                                     "Service": "scheduler.amazonaws.com"
                                 },
                                 "Action": "sts:AssumeRole",
-                                "Condition": {
-                                    "StringEquals": {
-                                        "aws:SourceAccount": Sub("{AWS::AccountId}"),
-                                    }
-                                }
                             }
                         ]
                 },
@@ -215,10 +210,7 @@ class Stocks(Blueprint):
                                 {
                                     "Effect": "Allow",
                                     "Action": ["lambda:InvokeFunction"],
-                                    "Resource": [
-                                        "arn:aws:lambda:us-west-2:934985413136:function:stocks-order-sync-lambda:*",
-                                        "arn:aws:lambda:us-west-2:934985413136:function:stocks-order-sync-lambda",
-                                    ],
+                                    "Resource": "*",
                                 },
                             ],
                         },
