@@ -220,11 +220,10 @@ class Stocks(Blueprint):
                                     "Action": ["lambda:InvokeFunction"],
                                     "Resource": [
                                         Sub(
-                                            "{LambdaArn}:*",
-                                            LambdaArn=GetAtt(
-                                                self.stocks_order_sync_lambda_function,
-                                                "Arn",
-                                            ),
+                                            "arn:aws:lambda:{AWS::Region}:{AWS::AccountId}:function:stocks-order-sync-lambda:*",
+                                        ),
+                                        Sub(
+                                            "arn:aws:lambda:{AWS::Region}:{AWS::AccountId}:function:stocks-order-sync-lambda",
                                         )
                                     ],
                                 },
