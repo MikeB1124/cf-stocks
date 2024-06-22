@@ -68,7 +68,7 @@ class Stocks(Blueprint):
             Type="String",
             Value=Ref(self.webhook_api_resource),
         )
-        self.template.add_resource(ssm_webhook_resource_id)
+        self.template.add_resource(ssm_sync_resource_id)
 
     def create_template(self):
         self.create_api_gateway()
