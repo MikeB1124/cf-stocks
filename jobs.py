@@ -223,7 +223,7 @@ class Stocks(Blueprint):
             "OrderSyncScheduler",
             Name="order-sync-scheduler",
             Description="Order Sync Scheduler",
-            ScheduleExpression="cron(10 * * * MON-FRI *)",
+            ScheduleExpression="cron(0/10 * ? * MON-FRI *)",
             ScheduleExpressionTimezone="America/Los_Angeles",
             FlexibleTimeWindow=scheduler.FlexibleTimeWindow(
                 Mode="OFF"
