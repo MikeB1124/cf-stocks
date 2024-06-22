@@ -22,6 +22,14 @@ stacks:
           BucketName: stocks-shared-bucket
           StocksPatternLambdaName: stocks-pattern-lambda
           SharedSecretsId: stocks/shared/secrets
+  
+  - name: jobs
+    class_path: jobs.Stocks
+    variables:
+        env-dict:
+          BucketName: stocks-shared-bucket
+          OrderSyncLambdaName: stocks-order-sync-lambda
+          SharedSecretsId: stocks/shared/secrets
 
   - name: integrations
     class_path: integrations.Stocks

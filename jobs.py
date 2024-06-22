@@ -22,10 +22,10 @@ class Stocks(Blueprint):
             )
         )
 
-    def create_stocks_pattern_lambda(self):
+    def create_stocks_order_sync_lambda(self):
         lambda_role = self.template.add_resource(
             iam.Role(
-                "StocksPatternLambdaExecutionRole",
+                "OrderSyncLambdaExecutionRole",
                 AssumeRolePolicyDocument={
                     "Version": "2012-10-17",
                     "Statement": [
@@ -43,7 +43,7 @@ class Stocks(Blueprint):
                 },
                 Policies=[
                     iam.Policy(
-                        PolicyName="StocksPatternLambdaS3Policy",
+                        PolicyName="OrderSyncLambdaS3Policy",
                         PolicyDocument={
                             "Version": "2012-10-17",
                             "Statement": [
@@ -63,7 +63,7 @@ class Stocks(Blueprint):
                         },
                     ),
                     iam.Policy(
-                        PolicyName="StocksPatternLambdaLogPolicy",
+                        PolicyName="OrderSyncLambdaLogPolicy",
                         PolicyDocument={
                             "Version": "2012-10-17",
                             "Statement": [
@@ -84,7 +84,7 @@ class Stocks(Blueprint):
                                         Sub(
                                             "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${LambdaName}:*",
                                             LambdaName=self.get_variables()["env-dict"][
-                                                "StocksPatternLambdaName"
+                                                "OrderSyncLambdaName"
                                             ],
                                         )
                                     ],
@@ -93,7 +93,7 @@ class Stocks(Blueprint):
                         },
                     ),
                     iam.Policy(
-                        PolicyName="StocksPatternLambdaSecretsManagerPolicy",
+                        PolicyName="OrderSyncLambdaSecretsManagerPolicy",
                         PolicyDocument={
                             "Version": "2012-10-17",
                             "Statement": [
@@ -116,15 +116,15 @@ class Stocks(Blueprint):
             )
         )
 
-        stocks_pattern_lambda_function = awslambda.Function(
-            "StocksPatternLambdaFunction",
-            FunctionName=self.get_variables()["env-dict"]["StocksPatternLambdaName"],
+        stocks_order_sync_lambda_function = awslambda.Function(
+            "OrderSyncLambdaFunction",
+            FunctionName=self.get_variables()["env-dict"]["OrderSyncLambdaName"],
             Code=awslambda.Code(
                 S3Bucket=Ref(self.existing_stocks_bucket),
                 S3Key=Sub(
                     "lambdas/${LambdaName}.zip",
                     LambdaName=self.get_variables()["env-dict"][
-                        "StocksPatternLambdaName"
+                        "OrderSyncLambdaName"
                     ],
                 ),
             ),
@@ -139,46 +139,46 @@ class Stocks(Blueprint):
             Runtime="provided.al2023",
             Role=GetAtt(lambda_role, "Arn"),
         )
-        self.template.add_resource(stocks_pattern_lambda_function)
+        self.template.add_resource(stocks_order_sync_lambda_function)
 
-        self.harmonic_pattern_api_resource = apigateway.Resource(
-            "HarmonicPatternResource",
-            ParentId="{{resolve:ssm:/stocks/webhook/resource/id}}",
+        self.order_sync_api_resource = apigateway.Resource(
+            "OrderSyncResource",
+            ParentId="{{resolve:ssm:/stocks/sync/resource/id}}",
             RestApiId="{{resolve:ssm:/stocks/api/id}}",
-            PathPart="harmonic-pattern",
+            PathPart="orders",
         )
-        self.template.add_resource(self.harmonic_pattern_api_resource)
+        self.template.add_resource(self.order_sync_api_resource)
 
-        harmonic_pattern_api_method = apigateway.Method(
-            "HarmonicPatternMethod",
-            DependsOn=stocks_pattern_lambda_function,
+        order_sync_api_method = apigateway.Method(
+            "OrderSyncMethod",
+            DependsOn=stocks_order_sync_lambda_function,
             AuthorizationType="NONE",
-            ApiKeyRequired=False,
+            ApiKeyRequired=True,
             HttpMethod="POST",
             RestApiId="{{resolve:ssm:/stocks/api/id}}",
-            ResourceId=Ref(self.harmonic_pattern_api_resource),
+            ResourceId=Ref(self.order_sync_api_resource),
             Integration=apigateway.Integration(
                 IntegrationHttpMethod="POST",
                 Type="AWS_PROXY",
                 Uri=Sub(
                     "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations",
-                    LambdaArn=GetAtt(stocks_pattern_lambda_function, "Arn"),
+                    LambdaArn=GetAtt(stocks_order_sync_lambda_function, "Arn"),
                 ),
             ),
         )
-        self.template.add_resource(harmonic_pattern_api_method)
+        self.template.add_resource(order_sync_api_method)
 
         self.template.add_resource(
             awslambda.Permission(
-                "StocksPatternInvokePermission",
-                DependsOn=stocks_pattern_lambda_function,
+                "OrderSyncInvokePermission",
+                DependsOn=stocks_order_sync_lambda_function,
                 Action="lambda:InvokeFunction",
                 FunctionName=self.get_variables()["env-dict"][
-                    "StocksPatternLambdaName"
+                    "OrderSyncLambdaName"
                 ],
                 Principal="apigateway.amazonaws.com",
                 SourceArn=Sub(
-                    "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiId}/*/POST/webhook/harmonic-pattern",
+                    "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiId}/*/POST/sync/orders",
                     ApiId="{{resolve:ssm:/stocks/api/id}}",
                 ),
             )
@@ -186,5 +186,5 @@ class Stocks(Blueprint):
 
     def create_template(self):
         self.get_existing_stocks_bucket()
-        self.create_stocks_pattern_lambda()
+        self.create_stocks_order_sync_lambda()
         return self.template

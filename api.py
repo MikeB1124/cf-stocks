@@ -22,6 +22,14 @@ class Stocks(Blueprint):
         )
         self.template.add_resource(self.webhook_api_resource)
 
+        self.sync_api_resource = apigateway.Resource(
+            "SyncResource",
+            ParentId=GetAtt(self.api, "RootResourceId"),
+            RestApiId=Ref(self.api),
+            PathPart="sync",
+        )
+        self.template.add_resource(self.sync_api_resource)
+
         self.template.add_output(
             Output(
                 "StocksApiId",
@@ -48,7 +56,15 @@ class Stocks(Blueprint):
 
         ssm_webhook_resource_id = ssm.Parameter(
             "WebhookResourceId",
-            Name="/webhook/resource/id",
+            Name="/stocks/webhook/resource/id",
+            Type="String",
+            Value=Ref(self.webhook_api_resource),
+        )
+        self.template.add_resource(ssm_webhook_resource_id)
+
+        ssm_sync_resource_id = ssm.Parameter(
+            "SyncResourceId",
+            Name="/stocks/sync/resource/id",
             Type="String",
             Value=Ref(self.webhook_api_resource),
         )
