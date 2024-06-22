@@ -240,7 +240,7 @@ class Stocks(Blueprint):
                 Mode="OFF"
             ),
             Target=scheduler.Target(
-                Arn=GetAtt(self.order_sync_api_resource, "Arn"),
+                Arn=GetAtt(self.stocks_order_sync_lambda_function, "Arn"),
                 Input='{"httpMethod": "POST", "path": "/sync/orders"}',
                 RetryPolicy=scheduler.RetryPolicy(
                     MaximumEventAgeInSeconds=86400,
