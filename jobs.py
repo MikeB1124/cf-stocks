@@ -189,6 +189,26 @@ class Stocks(Blueprint):
         scheduler_execution_role = self.template.add_resource(
             iam.Role(
                 "OrderSyncSchedulerExecutionRole",
+                AssumeRolePolicyDocument={
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Principal": {
+                                    "Service": "scheduler.amazonaws.com"
+                                },
+                                "Action": "sts:AssumeRole",
+                                "Condition": {
+                                    "StringEquals": {
+                                        "aws:SourceArn": Sub("arn:aws:scheduler:{AWS::Region}:{AWS::AccountId}:schedule/default/{LambdaName}",                     
+                                            LambdaName=self.get_variables()["env-dict"]["OrderSyncLambdaName"]
+                                        ),
+                                        "aws:SourceAccount": Sub("{AWS::AccountId}"),
+                                    }
+                                }
+                            }
+                        ]
+                },
                 Policies=[
                     iam.Policy(
                         PolicyName="OrderSyncSchedulerExecutionPolicy",
