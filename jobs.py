@@ -7,6 +7,7 @@ from troposphere import (
     Parameter,
     Sub,
     apigateway,
+    scheduler
 )
 
 
@@ -184,7 +185,67 @@ class Stocks(Blueprint):
             )
         )
 
+    def create_order_sync_scheduler(self):
+        scheduler_execution_role = self.template.add_resource(
+            iam.Role(
+                "OrderSyncSchedulerExecutionRole",
+                Policies=[
+                    iam.Policy(
+                        PolicyName="OrderSyncSchedulerExecutionPolicy",
+                        PolicyDocument={
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": ["lambda:InvokeFunction"],
+                                    "Resource": [
+                                        Sub(
+                                            "{LambdaArn}:*",
+                                            LambdaArn=GetAtt(
+                                                self.order_sync_api_resource,
+                                                "Arn",
+                                            ),
+                                        ),
+                                        Sub(
+                                            "{LambdaArn}",
+                                            LambdaArn=GetAtt(
+                                                self.order_sync_api_resource,
+                                                "Arn",
+                                            ),
+                                        )
+                                    ],
+                                },
+                            ],
+                        },
+                    )
+                ]
+            )
+        )
+
+        order_sync_scheduler = scheduler.Schedule(
+            "OrderSyncScheduler",
+            Name="order-sync-scheduler",
+            Description="Order Sync Scheduler",
+            ScheduleExpression="cron(0 0 * * ? *)",
+            ScheduleExpressionTimezone="America/Los_Angeles",
+            FlexibleTimeWindow=scheduler.FlexibleTimeWindow(
+                Mode="OFF"
+            ),
+            Target=scheduler.Target(
+                Arn=GetAtt(self.order_sync_api_resource, "Arn"),
+                Input='{"httpMethod": "POST", "path": "/sync/orders"}',
+                RetryPolicy=scheduler.RetryPolicy(
+                    MaximumEventAgeInSeconds=86400,
+                    MaximumRetryAttempts=185
+                ),
+                RoleArn=GetAtt(scheduler_execution_role, "Arn")
+            )
+        )
+        self.template.add_resource(order_sync_scheduler)
+
+
     def create_template(self):
         self.get_existing_stocks_bucket()
         self.create_stocks_order_sync_lambda()
+        self.create_order_sync_scheduler()
         return self.template
