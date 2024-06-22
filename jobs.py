@@ -200,9 +200,6 @@ class Stocks(Blueprint):
                                 "Action": "sts:AssumeRole",
                                 "Condition": {
                                     "StringEquals": {
-                                        "aws:SourceArn": Sub("arn:aws:scheduler:{AWS::Region}:{AWS::AccountId}:schedule/default/{LambdaName}",                     
-                                            LambdaName=self.get_variables()["env-dict"]["OrderSyncLambdaName"]
-                                        ),
                                         "aws:SourceAccount": Sub("{AWS::AccountId}"),
                                     }
                                 }
