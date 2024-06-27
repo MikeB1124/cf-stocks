@@ -440,7 +440,7 @@ class Stocks(Blueprint):
             "ProfitCalculatorScheduler",
             Name="profit-calculator-scheduler",
             Description="Profit Calculator Scheduler",
-            ScheduleExpression="cron(0/10 * ? * MON-FRI *)",
+            ScheduleExpression="cron(0 * ? * MON-FRI *)",
             ScheduleExpressionTimezone="America/Los_Angeles",
             FlexibleTimeWindow=scheduler.FlexibleTimeWindow(
                 Mode="OFF"
