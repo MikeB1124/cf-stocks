@@ -223,7 +223,7 @@ class Stocks(Blueprint):
             "OrderSyncScheduler",
             Name="order-sync-scheduler",
             Description="Order Sync Scheduler",
-            ScheduleExpression="cron(* 6-13 ? * MON-FRI *)",
+            ScheduleExpression="cron(10 14 ? * MON-FRI *)",
             ScheduleExpressionTimezone="America/Los_Angeles",
             FlexibleTimeWindow=scheduler.FlexibleTimeWindow(
                 Mode="OFF"
@@ -440,7 +440,7 @@ class Stocks(Blueprint):
             "ProfitCalculatorScheduler",
             Name="profit-calculator-scheduler",
             Description="Profit Calculator Scheduler",
-            ScheduleExpression="cron(0 * ? * MON-FRI *)",
+            ScheduleExpression="cron(10 15 ? * MON-FRI *)",
             ScheduleExpressionTimezone="America/Los_Angeles",
             FlexibleTimeWindow=scheduler.FlexibleTimeWindow(
                 Mode="OFF"
