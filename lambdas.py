@@ -135,6 +135,7 @@ class Stocks(Blueprint):
                     ]
                 }
             ),
+            Timeout=300,
             Handler="handler",
             Runtime="provided.al2023",
             Role=GetAtt(lambda_role, "Arn"),
