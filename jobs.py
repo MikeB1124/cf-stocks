@@ -593,7 +593,7 @@ class Stocks(Blueprint):
             ApiKeyRequired=True,
             HttpMethod="POST",
             RestApiId="{{resolve:ssm:/stocks/api/id}}",
-            ResourceId=Ref(self.profit_calculator_api_resource),
+            ResourceId=Ref(self.cancel_orders_api_resource),
             Integration=apigateway.Integration(
                 IntegrationHttpMethod="POST",
                 Type="AWS_PROXY",
